@@ -1,0 +1,6 @@
+"error": {
+      "data": "FIXPR_TSTVPROD_SVC_PORT_5100_TCP_PROTO=tcp",
+      "field": "message",
+      "message": "parsing input as JSON: invalid character 'F' looking for beginning of value",
+      "type": "json"
+    }
