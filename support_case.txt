@@ -1,0 +1,7 @@
+The file: filebeat_logging.yaml is the filebeat config running on the k8s pod.
+
+Per the k8s.csv file: which is generated from Kibana discover, Logs were ingested at about 06:31:01 EST, at about 07:45:01, and again started coming in at 16:25 to 17:20 EST.
+
+But per the file: fixgw-tstvprod-5c46474fdb-4btpq_fixgw-tstvprod_2026-05-11T21-00-54.txt which is the entire logs of the pod itself. It contains all the log entries that were ingested and those that were not ingested. This is the original of all the logs from the pod itself. Note that the timestamp on the log is in UTC. Review the logs that were ingested from this file and compare to the ones that were not installed and let me know the difference between the logs. Why are some logs being ingested and why are some not being ingested. Compare the logs in the k8s.csv file to the ones in fixgw-tstvprod-5c46474fdb-4btpq_fixgw-tstvprod_2026-05-11T21-00-54.txt to determine why are some logs not ingested.
+
+Additionally, see sample error in sample_error.txt
