@@ -1,0 +1,16 @@
+Hello Olamide,
+
+This is Ariana with support. Thank you for your patience while I continue to investigate this issue for you. I also pulled up your cluster and am reviewing logging there. Looking into the k8s and fixgw logs specifically that you sent over, I was wondering if you could run some commands for me to get some additional information to track the issue down as part of my investigation. Could you send me over the output of the following commands?
+
+✄𐘗text code block:✄𐘗
+kubectl describe pod fixgw-tstvprod-5c46474fdb-4btpq -n hs-caviar-microservices
+
+kubectl logs fixgw-tstvprod-5c46474fdb-4btpq -n hs-caviar-microservices --since=48h | grep -E "2026-05-11T1[1-9]|error|ERR|WARN|cannot|failed|backoff|retrying"
+
+kubectl get events -n hs-caviar-microservices --sort-by=.lastTimestamp | grep -i "filebeat\|OOM\|kill\|evict\|backoff"
+
+kubectl get pod fixgw-tstvprod-5c46474fdb-4btpq -n hs-caviar-microservices -o jsonpath='{.status.containerStatuses[0].restartCount}'
+
+Thanks, and let me know if you have any questions on these. If the outputs are large, feel free to attach the outputs as text files to the case attachments.
+
+-- Ariana
