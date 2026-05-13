@@ -1,0 +1,25 @@
+Hello again Ariana,
+
+Just to add more context for your understanding. 
+
+We are seeing logs ingested from the same nodes, from other pods. Also, this issue is largely intermittent and we have observed it across other pods. 
+
+
+Again see sample error:
+
+```
+  "error": {
+      "data": "FIXPR_TSTVPROD_SVC_PORT_5100_TCP_PROTO=tcp",
+      "field": "message",
+      "message": "parsing input as JSON: invalid character 'F' looking for beginning of value",
+      "type": "json"
+    }
+```
+
+The behaviour we're observing is: Filebeat sees a non-JSON object and drops it, then logs the error similar to: `parsing input as JSON: invalid character 'F' looking for beginning of value`. This behaviour is expected as per the `decode_json_fields` processor in the filebeat configuration. However, once these non-JSON messages were dropped by Filebeat, i also stops ingesting legitimate JSON files. Usually this happens for several hours until eventually, the JSON messages starts coming again, this happens without making any chnages to the pod, the application or Filebeat.
+
+I would however like to point out that these non-JSON messages are expected and it keeps coming in periodically. But, it does not always stop entire ingestion from the affected pod. In other words, sometimes, FIlebeat stops log ingestion from the pod when it sees the non-JSON objects and at other times, it does not stop the ingestion. it only logs the JSON error but continues log ingestion of valid JSON messages.
+
+This behaviour is therefore inconsistent and appears buggy. This is what we need an explanation for, then how to address it. Is this a bug? Is it an expected behaviour? What is the explanation for this behaviour? Has any other of your customers experienced this behaviour?
+
+Lastly, regarding your request for more information from the pods per the commands you shared earlier, we're not able to easily get access to run these commands as they require superadmin. Since this behavour is not peculiar to this pod, is it possible you use the filebeat configuration I shared in the `filebeat_logging.yaml` to analyse this behaviour.
