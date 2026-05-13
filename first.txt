@@ -1,0 +1,9 @@
+Hello,
+
+We're seeing that logs stopped being ingested into Elasticsearch for one of our k8s pods. Then suddenly the logs stared coming in again. See attached image.
+
+See the file: filebeat_logging.yaml: the filebeat config running on the k8s pod.
+
+Per the k8s.csv file: which is generated from Kibana discover, Logs were ingested at about 06:31:01 EST, at about 07:45:01, and again started coming in at 16:25 to 17:20 EST.
+
+Also see the file: fixgw-tstvprod-5c46474fdb-4btpq_fixgw-tstvprod_2026-05-11T21-00-54.txt which shows logs that were directly downloaded from the pod. We want to determine why some logs are being ingested and why are some not being ingested. Note that the timestamp on the log is in UTC.
