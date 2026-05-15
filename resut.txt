@@ -1,0 +1,20 @@
+HSE-NYC-MAC-142:general_scripts oolajide$ ssh oolajide-a@MS51-22ELKALT01
+oolajide-a@ms51-22elkalt01's password: 
+Last login: Fri May 15 07:33:16 2026 from 10.100.62.114
+[oolajide-a@ms51-22elkalt01 ~]$ sudo su
+[root@ms51-22elkalt01 oolajide-a]# 
+[root@ms51-22elkalt01 oolajide-a]# 
+[root@ms51-22elkalt01 oolajide-a]# 
+[root@ms51-22elkalt01 oolajide-a]# 
+[root@ms51-22elkalt01 oolajide-a]# echo $AWS_CONFIG_FILE
+jenkins_config
+[root@ms51-22elkalt01 oolajide-a]# aws sts get-caller-identity
+Unable to locate credentials. You can configure credentials by running "aws configure".
+[root@ms51-22elkalt01 oolajide-a]# su - logstash
+Last login: Fri May 15 07:45:10 UTC 2026 on pts/0
+[logstash@ms51-22elkalt01 ~]$ aws sts get-caller-identity
+{
+    "UserId": "AROAW2V4KMIBSMBNIFP4O:4f00001a2aaa67d0249689f47d000000001a2a",
+    "Account": "469620122115",
+    "Arn": "arn:aws:sts::469620122115:assumed-role/aws_ELK/4f00001a2aaa67d0249689f47d000000001a2a"
+}
