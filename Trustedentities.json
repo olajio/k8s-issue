@@ -1,0 +1,48 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "SAML2AllowFirstIdP",
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::469620122115:saml-provider/sts.hedgeservtest.com"
+            },
+            "Action": "sts:AssumeRoleWithSAML",
+            "Condition": {
+                "StringEquals": {
+                    "SAML:aud": "https://signin.aws.amazon.com/saml"
+                }
+            }
+        },
+        {
+            "Sid": "SAML2AllowSecondIdP",
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::469620122115:saml-provider/AzureAD"
+            },
+            "Action": "sts:AssumeRoleWithSAML",
+            "Condition": {
+                "StringEquals": {
+                    "SAML:aud": "https://signin.aws.amazon.com/saml"
+                }
+            }
+        },
+        {
+            "Sid": "RolesAnywhereIdP",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "rolesanywhere.amazonaws.com"
+            },
+            "Action": [
+                "sts:TagSession",
+                "sts:SetSourceIdentity",
+                "sts:AssumeRole"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "aws:PrincipalTag/x509Subject/CN": "ROLESANYWHERE_ELK_*"
+                }
+            }
+        }
+    ]
+}
