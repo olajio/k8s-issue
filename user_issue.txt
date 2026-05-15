@@ -1,0 +1,21 @@
+[root@ms51-22elkalt01 oolajide-a]# su - logstash
+Last login: Thu May 14 19:26:05 UTC 2026 on pts/0
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ aws sts get-caller-identity
+Unable to locate credentials. You can configure credentials by running "aws configure".
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ 
+[logstash@ms51-22elkalt01 ~]$ exit
+logout
+[root@ms51-22elkalt01 oolajide-a]# aws sts get-caller-identity
+Unable to locate credentials. You can configure credentials by running "aws configure".
+[root@ms51-22elkalt01 oolajide-a]# echo $AWS_CONFIG_FILE
+
+[root@ms51-22elkalt01 oolajide-a]# cat /etc/profile.d/aws_config.env
+export AWS_CONFIG_FILE=jenkins_config
+[root@ms51-22elkalt01 oolajide-a]# ls -la /etc/profile.d/aws_config.env
+-rw-r--r-- 1 root root 38 May 14 19:57 /etc/profile.d/aws_config.env
