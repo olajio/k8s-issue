@@ -1,0 +1,101 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AbacAccessForViewers",
+            "Action": [
+                "codepipeline:Get*",
+                "ec2:Get*",
+                "secretsmanager:DescribeSecret",
+                "ssm:Get*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "aws:ResourceTag/abac_viewer": "*${aws:PrincipalTag/abac_code}*"
+                }
+            }
+        },
+        {
+            "Sid": "AbacAccessForOperators",
+            "Action": [
+                "codebuild:BatchGetBuilds",
+                "codebuild:RetryBuild",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild",
+                "codepipeline:Get*",
+                "codepipeline:StartPipelineExecution",
+                "codepipeline:StopPipelineExecution",
+                "codepipeline:RetryStageExecution",
+                "ec2:Get*",
+                "ec2:StartInstances",
+                "ec2:StopInstances",
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey",
+                "lambda:InvokeFunction",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:GetSecretValue",
+                "ssm:Get*",
+                "ssm:StartSession",
+                "states:StartExecution",
+                "states:StopExecution"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "aws:ResourceTag/abac_operator": "*${aws:PrincipalTag/abac_code}*"
+                }
+            }
+        },
+        {
+            "Sid": "AbacAccessForAdmins",
+            "Action": [
+                "codepipeline:PutApprovalResult",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:UpdateSecret",
+                "secretsmanager:RotateSecret",
+                "secretsmanager:PutSecretValue",
+                "ssm:PutParameter",
+                "ssm:GetParameterHistory",
+                "ssm:GetParametersByPath",
+                "ssm:GetParameters",
+                "ssm:GetParameter"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "aws:ResourceTag/abac_admin": "*${aws:PrincipalTag/abac_code}*"
+                }
+            }
+        },
+        {
+            "Sid": "KmsAccessThroughSsmOrSecretsManager",
+            "Action": [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "kms:ViaService": [
+                        "secretsmanager.us-east-1.amazonaws.com",
+                        "secretsmanager.us-east-2.amazonaws.com",
+                        "ssm.us-east-1.amazonaws.com",
+                        "ssm.us-east-2.amazonaws.com"
+                    ]
+                }
+            }
+        }
+    ]
+}
