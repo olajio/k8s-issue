@@ -48,6 +48,33 @@ unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
 ---
 
 ## 2. Message to Cloud Automation Team---
+```
+Hi [Name],
+
+Thanks for the guidance on adding the abac_admin and abac_operator tags to the github_hsv_internal/itsma/service_elastic_auto_HSV secret. However, after investigating further I wanted to flag that tagging the secret alone won't be sufficient to grant the aws_ELK role access to it.
+
+Here's why: the ABAC policy (AbacAccess.json) grants access using a condition that matches the resource tag against a session tag on the caller's identity:
+
+  aws:ResourceTag/abac_operator  must contain  aws:PrincipalTag/abac_code
+
+The aws_ELK role is assumed via IAM Roles Anywhere, and the current RolesAnywhere profile configuration does not inject any session tags — specifically, abac_code is never set on the session. This means the right side of the ABAC condition is always empty, so the condition will never evaluate to true regardless of what tags are on the secret.
+
+To confirm this, I can point to the onprem/logstash/automation secret as a reference: that secret works today not because of ABAC, but because it has a dedicated hardcoded ARN grant in the ElkSecretCustomAccess policy. The github secret has no such direct grant, so it must rely on ABAC — which is currently broken at the session tag layer.
+
+What is needed in addition to tagging the secret:
+
+The RolesAnywhere profile (IDs below) needs to be updated in Terraform to inject abac_code = 620 as a session tag when the aws_ELK role is assumed:
+
+  - us-east-2 (default): c68bd204-2405-4398-85b2-01e65113e35d
+  - us-east-1 (DR):      a81ce7f6-e974-4784-9c53-d24b8ca2b4ee
+
+In Terraform this would be a session_tags block (or equivalent attribute) on the aws_rolesanywhere_profile resource.
+
+Happy to jump on a call to walk through this if helpful.
+
+Thanks,
+Ola
+```
 
 ## 3. Jira Card Update
 
