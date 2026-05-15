@@ -1,0 +1,65 @@
+Hey Jesse,
+
+Following up on the guidance to add abac_admin and abac_operator tags to the github_hsv_internal/itsma/service_elastic_auto_HSV secret. I did some digging and wanted to share what I found, because tagging the secret alone won't be enough to fix this.
+
+Here's what I ran and what I got back:
+
+--- Logstash secret (works) ---
+$ aws secretsmanager describe-secret \
+    --secret-id arn:aws:secretsmanager:us-east-2:469620122115:secret:onprem/logstash/automation-9M8cvG \
+    --region us-east-2
+
+Result: SUCCESS ✅
+Tags on the secret:
+  abac_admin:    620 710
+  abac_operator: 620 710
+
+--- GitHub secret (fails) ---
+$ aws secretsmanager describe-secret \
+    --secret-id arn:aws:secretsmanager:us-east-2:469620122115:secret:github_hsv_internal/itsma/service_elastic_auto_HSV-SRVK6D \
+    --region us-east-2
+
+Result: AccessDeniedException ❌
+"User: arn:aws:sts::469620122115:assumed-role/aws_ELK/... is not authorized to perform: secretsmanager:DescribeSecret... because no identity-based policy allows the action"
+Tags on the secret (same as logstash):
+  abac_admin:    620 710
+  abac_operator: 620 710
+
+Both secrets have identical tags. So why does one work and the other doesn't?
+
+The answer is that they're covered by completely different policies:
+
+- The logstash secret works because it has a dedicated policy (ElkSecretCustomAccess) that grants access via a hardcoded ARN — no tag matching involved at all. ABAC is irrelevant for it.
+- The GitHub secret has no such dedicated policy. The only policy that could cover it is AbacAccess, which uses an ABAC condition:
+
+    aws:ResourceTag/abac_operator  must contain  aws:PrincipalTag/abac_code
+
+  The right side of that condition — aws:PrincipalTag/abac_code — is the session tag on the caller. The aws_ELK role is assumed via RolesAnywhere, and the current profile configuration doesn't inject any session tags, so abac_code is always empty on the session and the condition never matches.
+
+I also checked the aws_ELK role itself and it does have a tag: abac_code = 118. But role-level tags don't automatically flow into the assumed role session as principal tags — that's not how IAM works. Only tags explicitly injected at session creation time (via the RolesAnywhere profile attribute mapping or session-tags) become aws:PrincipalTag/* values.
+
+And even if they did flow through, 118 doesn't appear in "620 710" (the value on the secret tags), so the condition still wouldn't match. That mismatch would also need to be resolved.
+
+So there are actually two things that need to be fixed for the ABAC approach to work:
+
+1. The RolesAnywhere profile needs to be updated (in Terraform) to inject abac_code as a session tag when aws_ELK is assumed.
+   Profile IDs:
+     us-east-2 (primary): c68bd204-2405-4398-85b2-01e65113e35d
+     us-east-1 (DR):      a81ce7f6-e974-4784-9c53-d24b8ca2b4ee
+
+2. The abac_code value injected needs to match what's on the target secrets/resources. The GitHub secret has abac_operator: 620 710, so the session tag would need to be 620 or 710 — not 118 (which is what the role tag currently says). Could you advise on what the correct abac_code value should be for ELK role sessions?
+
+---
+
+Alternative approach worth considering:
+
+There is actually a simpler fix that would unblock us immediately without touching RolesAnywhere at all — we could add the GitHub secret ARN directly to the ElkSecretCustomAccess policy, the same way the logstash secret is handled today. That would look like this:
+
+  Resource: arn:aws:secretsmanager:us-east-2:469620122115:secret:github_hsv_internal/itsma/service_elastic_auto_HSV-SRVK6D
+
+The trade-off is that this is a hardcoded ARN grant rather than a scalable ABAC pattern — so I understand if you'd prefer to fix it properly via RolesAnywhere. But if the ABAC/abac_code discussion is going to take time to resolve, this would be a clean short-term unblock while that gets sorted.
+
+Happy to go with whichever approach makes more sense given the broader ABAC strategy — or jump on a call if easier.
+
+Thanks,
+Ola
